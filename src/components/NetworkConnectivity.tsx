@@ -78,8 +78,11 @@ class NetworkConnectivity extends React.PureComponent<
   }
 
   componentDidUpdate(prevProps: RequiredProps, prevState: ConnectivityState) {
-    const { pingServerUrl, onConnectivityChange } = this.props;
+    const { pingInterval, pingServerUrl, onConnectivityChange } = this.props;
     const { isConnected } = this.state;
+    if (prevProps.pingInterval !== pingInterval) {
+      this.setupPingInterval(pingInterval);
+    }
     if (prevProps.pingServerUrl !== pingServerUrl) {
       this.checkInternet();
     }
@@ -131,6 +134,12 @@ class NetworkConnectivity extends React.PureComponent<
       ...netInfoState,
       isConnected: hasInternetAccess,
     } as NetInfoState);
+  };
+
+  setupPingInterval = (interval: number) => {
+    if (interval > 0) {
+      connectivityInterval.setup(this.intervalHandler, interval);
+    }
   };
 
   intervalHandler = () => {
